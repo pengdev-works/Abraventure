@@ -1,0 +1,255 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const db = require('./db');
+const verifyToken = require('./middleware/auth');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Update this with your actual Vercel URL once deployed
+const allowedOrigins = [
+  'http://localhost:5173', // For local dev
+  process.env.FRONTEND_URL || 'https://your-vercel-domain.vercel.app'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
+
+app.use(express.json());
+
+// Routes
+app.get('/api/spots', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM tourist_spots ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching spots:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/guides', async (req, res) => {
+  try {
+    const { accreditation } = req.query;
+    let query = 'SELECT * FROM guides';
+    const params = [];
+
+    if (accreditation) {
+      query += ' WHERE accreditation_level = $1';
+      params.push(accreditation);
+    }
+    
+    query += ' ORDER BY created_at DESC';
+    const result = await db.query(query, params);
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching guides:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/homestays', async (req, res) => {
+  try {
+    const { max_price } = req.query;
+    let query = 'SELECT * FROM homestays';
+    const params = [];
+
+    if (max_price) {
+      query += ' WHERE price_per_night <= $1';
+      params.push(max_price);
+    }
+    
+    query += ' ORDER BY created_at DESC';
+    const result = await db.query(query, params);
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching homestays:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/inquiry', async (req, res) => {
+  try {
+    const { type, target_id, guest_name, contact_details, booking_date, message } = req.body;
+    
+    // Basic validation
+    if (!type || !target_id || !guest_name || !contact_details || !booking_date) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const query = `
+      INSERT INTO bookings_inquiry 
+      (type, target_id, guest_name, contact_details, booking_date, message)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+    `;
+    const params = [type, target_id, guest_name, contact_details, booking_date, message];
+    
+    const result = await db.query(query, params);
+    
+    res.status(201).json({ message: 'Inquiry submitted successfully', inquiry: result.rows[0] });
+  } catch (error) {
+    console.error('Error submitting inquiry:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ==========================================
+// ADMIN AUTHENTICATION ROUTES
+// ==========================================
+
+// Initial setup route (You should remove or secure this after the first admin is created)
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    // Check if admin already exists
+    const checkUser = await db.query('SELECT * FROM admins WHERE username = $1', [username]);
+    if (checkUser.rows.length > 0) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const result = await db.query(
+      'INSERT INTO admins (username, password_hash) VALUES ($1, $2) RETURNING id, username',
+      [username, hashedPassword]
+    );
+
+    res.status(201).json({ message: 'Admin user created successfully', user: result.rows[0] });
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const result = await db.query('SELECT * FROM admins WHERE username = $1', [username]);
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password_hash);
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, username: user.username }, 
+      process.env.JWT_SECRET || 'fallback_secret_for_local_dev', 
+      { expiresIn: '24h' }
+    );
+
+    res.json({ token, username: user.username });
+  } catch (error) {
+    console.error('Error logging in:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ==========================================
+// PROTECTED ADMIN CRUD ROUTES
+// ==========================================
+
+// Add a new Tourist Spot
+app.post('/api/spots', verifyToken, async (req, res) => {
+  try {
+    const { name, description, location, image_url } = req.body;
+    const result = await db.query(
+      'INSERT INTO tourist_spots (name, description, location, image_url) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, description, location, image_url]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error adding spot:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete a Tourist Spot
+app.delete('/api/spots/:id', verifyToken, async (req, res) => {
+  try {
+    await db.query('DELETE FROM tourist_spots WHERE id = $1', [req.params.id]);
+    res.json({ message: 'Spot deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting spot:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Add a new Guide
+app.post('/api/guides', verifyToken, async (req, res) => {
+  try {
+    const { name, accreditation_level, contact_number, bio, image_url } = req.body;
+    const result = await db.query(
+      'INSERT INTO guides (name, accreditation_level, contact_number, bio, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [name, accreditation_level, contact_number, bio, image_url]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error adding guide:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete a Guide
+app.delete('/api/guides/:id', verifyToken, async (req, res) => {
+  try {
+    await db.query('DELETE FROM guides WHERE id = $1', [req.params.id]);
+    res.json({ message: 'Guide deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting guide:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Add a new Homestay
+app.post('/api/homestays', verifyToken, async (req, res) => {
+  try {
+    const { name, description, price_per_night, amenities, image_url } = req.body;
+    // Formatting amenities assuming it comes in as a comma-separated string from a simple form
+    const amenitiesArray = Array.isArray(amenities) ? amenities : amenities.split(',').map(item => item.trim());
+    
+    const result = await db.query(
+      'INSERT INTO homestays (name, description, price_per_night, amenities, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [name, description, price_per_night, amenitiesArray, image_url]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error adding homestay:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete a Homestay
+app.delete('/api/homestays/:id', verifyToken, async (req, res) => {
+  try {
+    await db.query('DELETE FROM homestays WHERE id = $1', [req.params.id]);
+    res.json({ message: 'Homestay deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting homestay:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
