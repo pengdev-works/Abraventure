@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import DestinationCard from '../components/DestinationCard';
+import Swal from 'sweetalert2';
 
 const Spots = () => {
   const [spots, setSpots] = useState([]);
@@ -9,6 +10,23 @@ const Spots = () => {
 
   useEffect(() => {
     const fetchSpots = async () => {
+      // First, don't show the alert immediately. Wait a moment to see if it's a fast request
+      let alertTimer;
+      if (spots.length === 0) {
+        alertTimer = setTimeout(() => {
+          Swal.fire({
+            title: 'Waking up Server...',
+            html: 'Loading destinations. This may take up to <b>50 seconds</b> on the first visit.',
+            toast: true,
+            position: 'bottom-end',
+            showConfirmButton: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+        }, 1500); // Only show if it takes more than 1.5 seconds
+      }
+
       try {
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
         const response = await axios.get(`${apiUrl}/spots`);
@@ -17,6 +35,8 @@ const Spots = () => {
         console.error('Error fetching spots:', err);
         setError('Failed to load tourist spots. Please try again later.');
       } finally {
+        if (alertTimer) clearTimeout(alertTimer);
+        Swal.close();
         setLoading(false);
       }
     };

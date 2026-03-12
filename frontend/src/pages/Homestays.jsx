@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import DestinationCard from '../components/DestinationCard';
 import InquiryModal from '../components/InquiryModal';
+import Swal from 'sweetalert2';
 
 const Homestays = () => {
   const [homestays, setHomestays] = useState([]);
@@ -14,6 +15,22 @@ const Homestays = () => {
 
   useEffect(() => {
     const fetchHomestays = async () => {
+      let alertTimer;
+      if (homestays.length === 0) {
+        alertTimer = setTimeout(() => {
+          Swal.fire({
+            title: 'Waking up Server...',
+            html: 'Loading homestays. This may take up to <b>50 seconds</b> on the first visit.',
+            toast: true,
+            position: 'bottom-end',
+            showConfirmButton: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+        }, 1500);
+      }
+
       try {
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
         const response = await axios.get(`${apiUrl}/homestays`);
@@ -22,6 +39,8 @@ const Homestays = () => {
         console.error('Error fetching homestays:', err);
         setError('Failed to load homestays. Please try again later.');
       } finally {
+        if (alertTimer) clearTimeout(alertTimer);
+        Swal.close();
         setLoading(false);
       }
     };

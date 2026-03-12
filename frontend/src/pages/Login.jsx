@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Lock } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -15,10 +16,22 @@ const Login = () => {
     setError('');
     setLoading(true);
 
+    // Show a loading alert because Render backend might take 50s to wake up on first load
+    Swal.fire({
+      title: 'Connecting to Server...',
+      html: 'Please wait. If this is the first login today, the free server may take up to <b>50 seconds</b> to wake up.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const response = await axios.post(`${apiUrl}/auth/login`, { username, password });
       
+      Swal.close(); // Close the loading alert
+
       // Save token to localStorage
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('adminUsername', response.data.username);
@@ -26,6 +39,7 @@ const Login = () => {
       // Redirect to admin dashboard
       navigate('/admin');
     } catch (err) {
+      Swal.close();
       setError(err.response?.data?.error || 'Invalid username or password');
     } finally {
       setLoading(false);

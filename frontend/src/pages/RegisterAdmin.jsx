@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { UserPlus } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const RegisterAdmin = () => {
   const [username, setUsername] = useState('');
@@ -17,10 +18,20 @@ const RegisterAdmin = () => {
     setSuccess('');
     setLoading(true);
 
+    Swal.fire({
+      title: 'Connecting to Server...',
+      html: 'Please wait. The free server may take up to <b>50 seconds</b> to wake up.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       await axios.post(`${apiUrl}/auth/register`, { username, password });
       
+      Swal.close();
       setSuccess('Admin account created successfully! You can now log in.');
       
       // Clear form
@@ -33,6 +44,7 @@ const RegisterAdmin = () => {
       }, 2000);
       
     } catch (err) {
+      Swal.close();
       setError(err.response?.data?.error || 'Registration failed. Username might already exist.');
     } finally {
       setLoading(false);
