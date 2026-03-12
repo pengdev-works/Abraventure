@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Spots from './pages/Spots';
 import Guides from './pages/Guides';
 import Login from './pages/Login';
+import RegisterAdmin from './pages/RegisterAdmin';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -21,6 +22,7 @@ function App() {
           
           {/* Admin Routes */}
           <Route path="/login" element={<Login />} />
+          <Route path="/admin-register" element={<RegisterAdmin />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/admin" element={<AdminDashboard />} />
           </Route>
