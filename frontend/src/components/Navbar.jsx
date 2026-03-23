@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Map, Menu, X, Tent, Users, Home } from 'lucide-react';
+import { Map, Menu, X, Tent, Users, Home, Info } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,6 +8,7 @@ const Navbar = () => {
 
   const links = [
     { name: 'Home', path: '/', icon: <Home className="w-5 h-5 mr-1" /> },
+    { name: 'About', path: '/about', icon: <Info className="w-5 h-5 mr-1" /> },
     { name: 'Tourist Spots', path: '/spots', icon: <Map className="w-5 h-5 mr-1" /> },
     { name: 'Guides', path: '/guides', icon: <Users className="w-5 h-5 mr-1" /> },
     { name: 'Homestays', path: '/homestays', icon: <Tent className="w-5 h-5 mr-1" /> },

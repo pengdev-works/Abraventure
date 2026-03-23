@@ -1,4 +1,5 @@
 import { MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const DestinationCard = ({ item, type, onActionClick }) => {
   // item can be a spot, guide, or homestay. We adapt based on type.
@@ -29,6 +30,13 @@ const DestinationCard = ({ item, type, onActionClick }) => {
       <div className="p-5 flex-grow flex flex-col">
         <h3 className="text-xl font-bold text-gray-900 mb-2">{item.name}</h3>
         
+        {item.location && (
+          <div className="flex items-center gap-1.5 text-nature-600 text-xs font-semibold uppercase tracking-wider mb-3">
+            <MapPin className="w-3.5 h-3.5" />
+            {item.location}
+          </div>
+        )}
+        
         {isHomestay && item.amenities && (
           <div className="flex flex-wrap gap-1 mb-3">
             {item.amenities.map((amenity, idx) => (
@@ -50,13 +58,22 @@ const DestinationCard = ({ item, type, onActionClick }) => {
         </p>
         
         <div className="mt-auto">
-          {onActionClick && (isHomestay || isGuide) && (
-            <button 
-              onClick={() => onActionClick(item)}
-              className="w-full bg-nature-600 hover:bg-nature-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+          {type === 'spot' ? (
+            <Link 
+              to={`/spots/${item.id}`}
+              className="block w-full text-center bg-nature-600 hover:bg-nature-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
             >
-              {isHomestay ? 'Book Now' : 'Contact Guide'}
-            </button>
+              Explore Destination
+            </Link>
+          ) : (
+            onActionClick && (isHomestay || isGuide) && (
+              <button 
+                onClick={() => onActionClick(item)}
+                className="w-full bg-nature-600 hover:bg-nature-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+              >
+                {isHomestay ? 'Book Now' : 'Contact Guide'}
+              </button>
+            )
           )}
         </div>
       </div>

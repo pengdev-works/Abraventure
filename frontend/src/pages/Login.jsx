@@ -97,6 +97,17 @@ const Login = () => {
               <span className="inline-block animate-spin w-5 h-5 border-2 border-white/30 border-t-white rounded-full"></span>
             ) : 'Login to Dashboard'}
           </button>
+
+          <div className="mt-6 text-center text-sm text-gray-500">
+            Are you an authorized personnel?{' '}
+            <button
+              type="button"
+              onClick={() => navigate('/admin-register')}
+              className="text-nature-600 hover:text-nature-800 font-semibold hover:underline"
+            >
+              Register here
+            </button>
+          </div>
         </form>
       </div>
     </div>

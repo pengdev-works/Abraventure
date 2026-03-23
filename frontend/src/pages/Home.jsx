@@ -6,9 +6,9 @@ const Home = () => {
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
-        {/* Abstract Background - Replace with real image later */}
-        <div className="absolute inset-0 bg-gradient-to-r from-nature-900 to-nature-700"></div>
-        <div className="absolute inset-0 opacity-20 bg-[url('https://textures.world/wp-content/uploads/2018/10/3-Mountain-Texture-Background.jpg')] bg-cover bg-center mix-blend-overlay"></div>
+        {/* Hero Background */}
+        <div className="absolute inset-0 bg-black/50 z-10 transition-opacity duration-500"></div>
+        <div className="absolute inset-0 bg-[url('/article-cover-photo-abra.webp')] bg-cover bg-center bg-no-repeat bg-fixed"></div>
         
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight">
@@ -79,6 +79,67 @@ const Home = () => {
               <Link to="/homestays" className="text-nature-600 font-semibold hover:text-nature-800 flex items-center justify-center">
                 Find Homestays <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* Protocols Section */}
+      <section className="py-24 bg-nature-50 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-earth-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 transform translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-nature-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 transform -translate-x-1/2 translate-y-1/2"></div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Tourist Protocols & Guidelines</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
+              To ensure a safe, respectful, and enriching experience for everyone, we kindly ask all visitors to adhere to the following protocols set by the local tourism office and community leaders.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Protocol 1 */}
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+              <div className="w-14 h-14 bg-earth-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-earth-500">
+                <span className="text-earth-600 font-bold text-xl group-hover:text-white">01</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Pre-Registration</h3>
+              <p className="text-gray-600 leading-relaxed text-sm">
+                All tourists must pre-register and secure a booking confirmation before arrival. Walk-ins may not always be accommodated depending on community capacity.
+              </p>
+            </div>
+
+            {/* Protocol 2 */}
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+              <div className="w-14 h-14 bg-nature-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-nature-600">
+                <span className="text-nature-600 font-bold text-xl group-hover:text-white">02</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Environmental Respect</h3>
+              <p className="text-gray-600 leading-relaxed text-sm">
+                Strict adherence to the "Leave No Trace" principle. Proper waste disposal is mandatory. Avoid bringing single-use plastics to our pristine destinations.
+              </p>
+            </div>
+
+            {/* Protocol 3 */}
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+              <div className="w-14 h-14 bg-earth-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-earth-500">
+                <span className="text-earth-600 font-bold text-xl group-hover:text-white">03</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Cultural Sensitivity</h3>
+              <p className="text-gray-600 leading-relaxed text-sm">
+                Respect local customs, traditions, and sacred sites. Always ask for permission before taking photographs of the indigenous community members.
+              </p>
+            </div>
+
+            {/* Protocol 4 */}
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+              <div className="w-14 h-14 bg-nature-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-nature-600">
+                <span className="text-nature-600 font-bold text-xl group-hover:text-white">04</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Accredited Guides</h3>
+              <p className="text-gray-600 leading-relaxed text-sm">
+                For your safety, tourists are required to be accompanied by a recognized DOT-accredited local guide, especially in remote tourism spots.
+              </p>
             </div>
           </div>
         </div>
