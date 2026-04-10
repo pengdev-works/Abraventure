@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Check, CreditCard, ShieldCheck, Mail, User, Calendar, MessageSquare, ArrowRight } from 'lucide-react';
 import axios from 'axios';
 
 const InquiryModal = ({ isOpen, onClose, targetItem, type }) => {
@@ -35,113 +35,147 @@ const InquiryModal = ({ isOpen, onClose, targetItem, type }) => {
         onClose();
         setStatus('idle');
         setFormData({ guest_name: '', contact_details: '', booking_date: '', message: '', payment_reference: '' });
-      }, 2500);
+      }, 3000);
     } catch (error) {
       console.error('Error submitting inquiry:', error);
       setStatus('error');
     }
   };
 
+  const isHomestay = type === 'homestay';
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm transition-opacity">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative transform transition-all">
-        <div className="bg-nature-800 px-6 py-4 flex justify-between items-center text-white">
-          <h2 className="text-xl font-bold">
-            {type === 'homestay' ? `Book ${targetItem.name}` : `Contact ${targetItem.name}`}
-          </h2>
-          <button onClick={onClose} className="text-nature-200 hover:text-white transition-colors p-1 rounded-full hover:bg-nature-700">
-            <X className="w-5 h-5" />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-nature-950/60 backdrop-blur-md transition-all duration-500 animate-fade-in">
+      <div className={`
+        bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl overflow-hidden relative transform transition-all duration-500
+        ${status === 'submitting' ? 'scale-95 opacity-80' : 'scale-100 opacity-100'}
+      `}>
+        {/* Institutional Header */}
+        <div className="bg-nature-900 px-10 py-8 flex justify-between items-center text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-nature-600/20 rounded-full blur-[40px] -mr-16 -mt-16"></div>
+          <div className="relative z-10">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-nature-400 mb-1 block">Sanctuary Gateway</span>
+            <h2 className="text-2xl md:text-3xl font-black tracking-tighter italic">
+              {isHomestay ? `Request ${targetItem.name}` : `Consult ${targetItem.name}`}
+            </h2>
+          </div>
+          <button onClick={onClose} className="relative z-10 w-12 h-12 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all group">
+            <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
           </button>
         </div>
 
-        <div className="p-5 max-h-[80vh] overflow-y-auto">
+        <div className="p-10 max-h-[75vh] overflow-y-auto custom-scrollbar text-left">
           {status === 'success' ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+            <div className="py-20 text-center animate-fade-in">
+              <div className="w-24 h-24 bg-nature-50 text-nature-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-xl shadow-nature-600/10 ring-8 ring-nature-50/50">
+                <Check size={48} className="animate-bounce" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Inquiry Sent!</h3>
-              <p className="text-gray-600">The {type === 'homestay' ? 'host' : 'guide'} will contact you soon to confirm.</p>
+              <h3 className="text-4xl font-black text-gray-900 tracking-tighter mb-4 italic">Protocol Initiated.</h3>
+              <p className="text-gray-500 font-medium max-w-xs mx-auto">Your institutional inquiry is being processed. The {isHomestay ? 'host' : 'expert'} will contact you via your provided credentials.</p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-3">
-
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-4">
-                <h4 className="font-bold text-blue-900 mb-1 flex items-center gap-2 text-sm">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                  GCash Payment Instructions
-                </h4>
-                <p className="text-xs text-blue-800 mb-2">Please send the exact booking amount via GCash to secure your reservation.</p>
-                <div className="bg-white px-3 py-2 rounded border border-blue-200 inline-block mb-3">
-                  <span className="font-mono font-bold text-lg text-gray-900">09668579216</span>
-                  <span className="block text-xs text-gray-500">Provincial Tourism Office</span>
+            <form onSubmit={handleSubmit} className="space-y-8">
+              
+              {/* Payment Instruction Card */}
+              <div className="bg-blue-900 p-8 rounded-[2.5rem] relative overflow-hidden group shadow-2xl shadow-blue-900/10 border border-blue-800 transition-all hover:bg-blue-800">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-[40px] -mr-16 -mt-16"></div>
+                <div className="relative z-10 space-y-4">
+                  <div className="flex items-center justify-between">
+                     <span className="text-[10px] font-black uppercase tracking-widest text-blue-300">GCash Settlement Node</span>
+                     <CreditCard size={18} className="text-blue-200" />
+                  </div>
+                  <div className="flex flex-col">
+                     <span className="text-xs font-bold text-blue-200/60 uppercase tracking-widest mb-1 leading-none">Institutional Account</span>
+                     <span className="text-4xl font-black text-white tracking-tighter drop-shadow-lg">0966 8579 216</span>
+                     <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest mt-2">Provincial Tourism Bureau</span>
+                  </div>
+                  <div className="pt-4 border-t border-white/10 flex items-center gap-2">
+                     <ShieldCheck size={14} className="text-blue-300" />
+                     <p className="text-[10px] font-bold text-blue-200 leading-relaxed italic">Synchronize your 13-digit Reference Number to establish verification.</p>
+                  </div>
                 </div>
-                <p className="text-xs text-blue-700 italic border-t border-blue-200/50 pt-2">
-                  Ensure to copy the 13-digit Reference Number from your GCash receipt to complete this booking.
-                </p>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                <input
-                  type="text" required name="guest_name" value={formData.guest_name} onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nature-500 focus:border-nature-500 outline-none transition-all"
-                  placeholder="Juan Dela Cruz"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                       <User size={12} className="text-nature-600" /> Traveler Identity
+                    </label>
+                    <input
+                      type="text" required name="guest_name" value={formData.guest_name} onChange={handleChange}
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-nature-500/10 focus:border-nature-600 outline-none transition-all font-bold text-gray-900"
+                      placeholder="Juan Dela Cruz"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                       <Mail size={12} className="text-nature-600" /> Secure Contact
+                    </label>
+                    <input
+                      type="text" required name="contact_details" value={formData.contact_details} onChange={handleChange}
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-nature-500/10 focus:border-nature-600 outline-none transition-all font-bold text-gray-900"
+                      placeholder="Email or Connectivity ID"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                       <CreditCard size={12} className="text-blue-600" /> GCash Settlement Ref
+                    </label>
+                    <input
+                      type="text" required name="payment_reference" value={formData.payment_reference} onChange={handleChange}
+                      className="w-full px-6 py-4 bg-blue-50/50 border border-blue-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-mono font-black text-blue-900"
+                      placeholder="Institutional 13-digit Ref"
+                      maxLength="13"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                       <Calendar size={12} className="text-nature-600" /> Scheduled Arrival
+                    </label>
+                    <input
+                      type="date" required name="booking_date" value={formData.booking_date} onChange={handleChange}
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-nature-500/10 focus:border-nature-600 outline-none transition-all font-bold text-gray-900"
+                    />
+                  </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Details (Email or Phone)</label>
-                <input
-                  type="text" required name="contact_details" value={formData.contact_details} onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nature-500 focus:border-nature-500 outline-none transition-all"
-                  placeholder="09123456789 or juan@example.com"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">GCash Reference No.</label>
-                <input
-                  type="text" required name="payment_reference" value={formData.payment_reference} onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-gray-50 font-mono"
-                  placeholder="e.g. 1205678901234"
-                  maxLength="13"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                <input
-                  type="date" required name="booking_date" value={formData.booking_date} onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nature-500 focus:border-nature-500 outline-none transition-all text-gray-700"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Message (Optional)</label>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                   <MessageSquare size={12} className="text-nature-600" /> Special Requirements
+                </label>
                 <textarea
-                  name="message" value={formData.message} onChange={handleChange} rows="2"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nature-500 focus:border-nature-500 outline-none transition-all resize-none"
-                  placeholder="Any special requests or questions?"
+                  name="message" value={formData.message} onChange={handleChange} rows="3"
+                  className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-nature-500/10 focus:border-nature-600 outline-none transition-all font-medium text-gray-700 resize-none"
+                  placeholder="Operational notes or specific inquiries..."
                 ></textarea>
               </div>
 
               {status === 'error' && (
-                <div className="text-red-500 text-sm p-2 bg-red-50 rounded-md">
-                  Failed to send inquiry. Please try again.
+                <div className="p-4 bg-red-50 rounded-2xl border border-red-100 flex items-center gap-3 text-red-600 font-bold text-xs">
+                   <X size={16} /> Operational link interrupted. Please retry.
                 </div>
               )}
 
-              <div className="pt-2">
+              <div className="pt-4 flex flex-col md:flex-row gap-4">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 px-8 py-5 rounded-3xl border border-gray-100 font-black text-[10px] uppercase tracking-widest text-gray-400 hover:bg-gray-50 transition-all"
+                >
+                  Terminate Request
+                </button>
                 <button
                   type="submit"
                   disabled={status === 'submitting'}
-                  className="w-full bg-nature-600 hover:bg-nature-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors duration-200 disabled:opacity-70 flex justify-center items-center"
+                  className="flex-[2] bg-nature-900 text-white font-black px-10 py-5 rounded-3xl shadow-2xl shadow-nature-900/40 hover:bg-black transition-all disabled:opacity-70 flex justify-center items-center gap-3 group"
                 >
                   {status === 'submitting' ? (
-                    <span className="inline-block animate-spin w-5 h-5 border-2 border-white/30 border-t-white rounded-full mr-2"></span>
-                  ) : null}
-                  {status === 'submitting' ? 'Sending...' : 'Submit Inquiry'}
+                    <div className="animate-spin w-5 h-5 border-2 border-white/30 border-t-white rounded-full"></div>
+                  ) : <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />}
+                  <span className="text-[10px] tracking-[0.3em] uppercase">{status === 'submitting' ? 'Transmitting...' : 'Initiate Adjudication'}</span>
                 </button>
               </div>
             </form>

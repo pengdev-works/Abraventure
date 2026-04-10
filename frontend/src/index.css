@@ -3,8 +3,11 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   body {
-    @apply text-gray-800 bg-earth-50;
+    @apply text-gray-900 bg-earth-50 font-sans antialiased;
   }
 }
 
@@ -13,4 +16,27 @@
   .glass {
     @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
   }
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-lg border border-white/10 shadow-2xl;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-nature-600 to-earth-600;
+  }
+  .btn-hover {
+    @apply transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98];
+  }
+  .card-hover {
+    @apply transition-all duration-500 hover:shadow-2xl hover:-translate-y-2;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-earth-100;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-nature-300 rounded-full hover:bg-nature-400 transition-colors;
 }

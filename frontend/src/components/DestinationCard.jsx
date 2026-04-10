@@ -1,80 +1,100 @@
-import { MapPin } from 'lucide-react';
+import { MapPin, ArrowRight, Star, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const DestinationCard = ({ item, type, onActionClick }) => {
-  // item can be a spot, guide, or homestay. We adapt based on type.
   const isHomestay = type === 'homestay';
   const isGuide = type === 'guide';
+  const isSpot = type === 'spot';
   
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-nature-100 flex flex-col h-full transform hover:-translate-y-1 transition-transform">
-      <div className="relative h-48 w-full bg-earth-200">
+    <div className="group bg-white rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 flex flex-col h-[550px] overflow-hidden relative">
+      {/* Visual Header */}
+      <div className="relative h-[320px] w-full overflow-hidden">
         {item.image_url ? (
           <img 
             src={item.image_url} 
             alt={item.name} 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-earth-500 font-medium">
-            Image Not Available
+          <div className="w-full h-full bg-earth-50 flex items-center justify-center text-earth-300">
+             <MapPin size={48} className="opacity-20 translate-y-4" />
           </div>
         )}
-        {isHomestay && item.price_per_night && (
-          <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold text-nature-800 shadow-sm">
-            ₱{item.price_per_night} / night
-          </div>
-        )}
+        
+        {/* Glassmorphic Badges */}
+        <div className="absolute top-6 left-6 flex flex-col gap-3">
+          {isHomestay && item.price_per_night && (
+            <div className="bg-white/20 backdrop-blur-md border border-white/30 px-4 py-2 rounded-2xl text-white shadow-xl">
+               <span className="text-[10px] font-black uppercase tracking-widest block opacity-70 leading-none mb-1">Price/Night</span>
+               <span className="text-lg font-black tracking-tighter">₱{item.price_per_night}</span>
+            </div>
+          )}
+          
+          {isGuide && item.accreditation_level && (
+            <div className="bg-nature-900/40 backdrop-blur-md border border-nature-400/30 px-4 py-2 rounded-2xl text-white shadow-xl flex items-center gap-2">
+               <ShieldCheck size={16} className="text-nature-400" />
+               <span className="text-xs font-black uppercase tracking-widest">{item.accreditation_level}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Favorite/Rating Action */}
+        <button className="absolute top-6 right-6 w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-white hover:bg-white hover:text-nature-600 transition-all shadow-xl group/fav">
+           <Star size={20} className="group-hover/fav:fill-nature-600 transition-all" />
+        </button>
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
       </div>
       
-      <div className="p-5 flex-grow flex flex-col">
-        <h3 className="text-xl font-bold text-gray-900 mb-2">{item.name}</h3>
-        
-        {item.location && (
-          <div className="flex items-center gap-1.5 text-nature-600 text-xs font-semibold uppercase tracking-wider mb-3">
-            <MapPin className="w-3.5 h-3.5" />
-            {item.location}
-          </div>
-        )}
-        
-        {isHomestay && item.amenities && (
-          <div className="flex flex-wrap gap-1 mb-3">
-            {item.amenities.map((amenity, idx) => (
-              <span key={idx} className="bg-nature-50 text-nature-700 text-xs px-2 py-1 rounded-md border border-nature-200">
-                {amenity}
-              </span>
-            ))}
-          </div>
-        )}
+      {/* Content Body */}
+      <div className="p-8 flex-grow flex flex-col text-left relative">
+        {/* Floating Category/Location */}
+        <div className="absolute -top-10 right-8 bg-nature-600 text-white px-5 py-2.5 rounded-2xl shadow-xl transform group-hover:-translate-y-2 transition-transform duration-500">
+           <span className="text-[10px] font-black uppercase tracking-widest">{isSpot ? 'Destination' : type}</span>
+        </div>
 
-        {isGuide && item.accreditation_level && (
-          <div className="inline-block bg-earth-100 text-earth-800 text-xs px-2 py-1 rounded-md font-medium mb-3 self-start">
-            {item.accreditation_level}
+        <div className="mb-4">
+          <div className="flex items-center gap-1.5 text-nature-600 text-[10px] font-black uppercase tracking-widest mb-2">
+            <MapPin className="w-3 h-3" />
+            {item.location || 'Discover Abra'}
           </div>
-        )}
-
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow">
-          {item.description || item.bio}
+          <h3 className="text-3xl font-black text-gray-900 tracking-tighter group-hover:text-nature-700 transition-colors leading-tight">
+            {item.name}
+          </h3>
+        </div>
+        
+        <p className="text-gray-500 text-sm font-medium mb-6 line-clamp-2 leading-relaxed flex-grow">
+          {item.description || item.bio || "Experience the unblemished beauty and rich cultural heritage that this unique location offers to every traveler."}
         </p>
         
-        <div className="mt-auto">
-          {type === 'spot' ? (
+        {/* Footer Actions */}
+        <div className="mt-auto flex items-center justify-between border-t border-gray-50 pt-6">
+          {isSpot ? (
             <Link 
               to={`/spots/${item.id}`}
-              className="block w-full text-center bg-nature-600 hover:bg-nature-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+              className="flex items-center gap-2 text-nature-700 font-black text-sm uppercase tracking-widest hover:gap-4 transition-all"
             >
-              Explore Destination
+              Learn More <ArrowRight className="w-4 h-4" />
             </Link>
           ) : (
-            onActionClick && (isHomestay || isGuide) && (
+            onActionClick && (
               <button 
                 onClick={() => onActionClick(item)}
-                className="w-full bg-nature-600 hover:bg-nature-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                className="flex items-center gap-2 text-nature-700 font-black text-sm uppercase tracking-widest hover:gap-4 transition-all"
               >
-                {isHomestay ? 'Book Now' : 'Contact Guide'}
+                {isHomestay ? 'Secure Booking' : 'Contact Expert'} <ArrowRight className="w-4 h-4" />
               </button>
             )
           )}
+          
+          <div className="flex items-center -space-x-2">
+             {[1,2,3].map(i => (
+               <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] font-bold overflow-hidden ring-1 ring-gray-100">
+                 <img src={`https://i.pravatar.cc/100?u=${item.id}${i}`} className="w-full h-full object-cover" alt="visitor" />
+               </div>
+             ))}
+          </div>
         </div>
       </div>
     </div>

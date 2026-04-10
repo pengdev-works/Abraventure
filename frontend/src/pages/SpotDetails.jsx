@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { MapPin, ArrowLeft, Tent, Users, Map as MapIcon } from 'lucide-react';
+import { MapPin, ArrowLeft, ArrowRight, Tent, Users, Navigation, Compass, ShieldCheck, ChevronRight, Share2, Heart, Info, Map as MapIcon } from 'lucide-react';
 import InquiryModal from '../components/InquiryModal';
 import MapContainer from '../components/MapContainer';
 
@@ -30,14 +30,9 @@ const SpotDetails = () => {
         ]);
         
         setSpot(spotRes.data);
-        
-        // Filter homestays and guides to only those in the same location
         const targetLocation = spotRes.data.location;
-        const localHomestays = homestaysRes.data.filter(h => h.location === targetLocation);
-        const localGuides = guidesRes.data.filter(g => g.location === targetLocation);
-        
-        setHomestays(localHomestays);
-        setGuides(localGuides);
+        setHomestays(homestaysRes.data.filter(h => h.location === targetLocation));
+        setGuides(guidesRes.data.filter(g => g.location === targetLocation));
       } catch (error) {
         console.error('Error fetching details:', error);
       } finally {
@@ -46,7 +41,7 @@ const SpotDetails = () => {
     };
     
     fetchData();
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
 
   const openModal = (item, type) => {
@@ -57,190 +52,226 @@ const SpotDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen pt-20 flex justify-center items-center bg-gray-50">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="w-12 h-12 border-4 border-nature-200 border-t-nature-600 rounded-full animate-spin mb-4"></div>
-          <p className="text-nature-600 font-medium">Loading destination...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 space-y-6">
+        <div className="relative w-24 h-24">
+          <div className="absolute inset-0 rounded-full border-4 border-nature-200 border-t-nature-600 animate-spin"></div>
+          <div className="absolute inset-4 rounded-full border-4 border-nature-100 border-b-nature-400 animate-spin-reverse delay-150"></div>
         </div>
+        <p className="text-nature-700 font-black uppercase tracking-[0.3em] text-[10px] animate-pulse">Syncing Geographical Intelligence...</p>
       </div>
     );
   }
 
   if (!spot) {
     return (
-      <div className="min-h-screen pt-20 flex flex-col justify-center items-center bg-gray-50 text-center px-4">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Destination Not Found</h2>
-        <p className="text-gray-600 mb-8 max-w-md">The tourist spot you are looking for does not exist or has been removed.</p>
-        <button onClick={() => navigate('/spots')} className="bg-nature-600 text-white px-6 py-3 rounded-full hover:bg-nature-700 transition">
-          Back to Tourist Spots
+      <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 text-center px-4">
+        <Compass size={80} className="text-gray-200 mb-8" />
+        <h2 className="text-5xl font-black text-gray-900 mb-4 tracking-tighter italic">Coordinate Lost.</h2>
+        <p className="text-gray-500 mb-10 max-w-sm font-medium">The institutional record for this destination has been purged or relocated.</p>
+        <button onClick={() => navigate('/spots')} className="bg-nature-900 text-white px-10 py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-2xl shadow-nature-900/40 hover:scale-105 transition-all outline-none">
+          Return to Hub
         </button>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20">
-      {/* Hero Section */}
-      <div className="relative h-[60vh] md:h-[70vh] w-full bg-nature-900">
-        <img 
-          src={spot.image_url || 'https://images.unsplash.com/photo-1542224566-6e85f2e10ce3'} 
-          alt={spot.name} 
-          className="w-full h-full object-cover opacity-60"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+    <div className="bg-white min-h-screen pb-40 selection:bg-nature-100 selection:text-nature-900">
+      {/* Immersive Cinematic Hero */}
+      <section className="relative h-[85vh] w-full flex items-end overflow-hidden group">
+        <div className="absolute inset-0 scale-105 group-hover:scale-100 transition-transform duration-[10s] ease-linear">
+          <img 
+            src={spot.image_url || 'https://images.unsplash.com/photo-1542224566-6e85f2e10ce3'} 
+            alt={spot.name} 
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-nature-950 via-nature-950/20 to-transparent z-10"></div>
         
-        <div className="absolute top-24 left-4 md:left-8 z-10">
+        {/* Navigation Overlays */}
+        <div className="absolute top-32 left-8 md:left-12 lg:left-24 z-30">
           <button 
             onClick={() => navigate('/spots')}
-            className="flex items-center gap-2 text-white/90 hover:text-white bg-black/20 hover:bg-black/40 px-4 py-2 rounded-full backdrop-blur-sm transition-all"
+            className="flex items-center gap-3 text-white/80 hover:text-white bg-white/10 backdrop-blur-xl border border-white/20 px-6 py-3 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest transition-all hover:pl-4 shadow-2xl"
           >
-            <ArrowLeft className="w-5 h-5" /> Back to Destinations
+            <ArrowLeft size={16} /> Hub Discovery
           </button>
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 p-6 md:p-12 lg:px-24">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="max-w-3xl">
-              <span className="inline-flex items-center gap-1 text-nature-200 font-medium tracking-wider uppercase text-sm mb-3">
-                <MapPin className="w-4 h-4" /> {spot.location}
-              </span>
-              <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
-                {spot.name}
-              </h1>
-            </div>
-          </div>
+        <div className="absolute top-32 right-8 md:right-12 lg:right-24 z-30 flex items-center gap-4">
+           <button className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-nature-900 transition-all shadow-2xl"><Heart size={20}/></button>
+           <button className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-nature-900 transition-all shadow-2xl"><Share2 size={20}/></button>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
-        <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 mb-12">
-           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-             <div className="lg:col-span-2">
-               <h2 className="text-2xl font-bold text-gray-900 mb-6 font-primary">About this Destination</h2>
-               <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-line">
-                 {spot.description}
-               </p>
-             </div>
-             
-             {spot.directions && (
-               <div className="bg-nature-50 rounded-2xl p-8 border border-nature-100">
-                 <h3 className="text-xl font-bold text-nature-900 mb-4 flex items-center gap-2">
-                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
-                   How to Get Here
-                 </h3>
-                 <p className="text-nature-800 text-sm leading-relaxed whitespace-pre-line italic">
-                   {spot.directions}
-                 </p>
-               </div>
-             )}
+        <div className="relative z-20 max-w-7xl mx-auto w-full px-8 md:px-12 lg:px-24 pb-20 text-left">
+           <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-3">
+                 <span className="bg-nature-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] text-white shadow-xl shadow-nature-600/40">Verified Sanctuary</span>
+                 <div className="flex items-center gap-2 text-nature-200 text-xs font-black uppercase tracking-widest backdrop-blur-md bg-white/5 px-4 py-1.5 rounded-full border border-white/10">
+                    <MapPin size={14} /> {spot.location}
+                 </div>
+              </div>
+              <h1 className="text-6xl md:text-9xl font-black text-white tracking-tighter leading-none italic animate-fade-in-up">
+                {spot.name}<span className="text-nature-400">.</span>
+              </h1>
+              <p className="text-nature-50/60 max-w-3xl text-lg md:text-xl font-medium leading-relaxed drop-shadow-lg">
+                 Part of the ancestral municipality of {spot.location}, this destination represents the unblemished geographical heritage of the Abrenian people.
+              </p>
            </div>
         </div>
+      </section>
 
-        {/* Mini Map Section */}
-        {spot.latitude && spot.longitude && (
-          <div className="bg-white rounded-3xl shadow-lg p-1 border border-gray-100 mb-12 overflow-hidden h-[400px]">
-            <MapContainer 
-              markers={[spot]} 
-              center={{ lat: parseFloat(spot.latitude), lng: parseFloat(spot.longitude) }} 
-              zoom={13} 
-              height="100%" 
-              interactive={false} 
-            />
-          </div>
-        )}
-
-        {/* Recommended Homestays Section */}
-        <div className="mb-16">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-nature-100 rounded-xl flex items-center justify-center text-nature-600">
-              <Tent className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900">Where to Stay Nearby</h3>
-              <p className="text-gray-500">Certified homestays located in <span className="text-nature-600 font-bold">{spot.location}</span>.</p>
-            </div>
-          </div>
+      {/* Magazine Layout Body */}
+      <section className="max-w-7xl mx-auto px-8 md:px-12 lg:px-24 -mt-20 relative z-30">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
           
-          {homestays.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {homestays.map((homestay) => (
-                <div key={homestay.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-transform duration-300 hover:-translate-y-1">
-                  <div className="h-48 w-full bg-gray-200 relative">
-                    <img 
-                      src={homestay.image_url || 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4'} 
-                      alt={homestay.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold text-nature-700">
-                      ₱{homestay.price_per_night} / night
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{homestay.name}</h3>
-                    <p className="text-gray-600 text-sm line-clamp-2 mb-4">{homestay.description}</p>
-                    <button 
-                      onClick={() => openModal(homestay, 'homestay')}
-                      className="w-full py-2.5 bg-nature-50 hover:bg-nature-600 text-nature-700 hover:text-white border border-nature-200 hover:border-transparent rounded-xl font-medium transition-colors"
-                    >
-                      Book Homestay
-                    </button>
-                  </div>
+          {/* Main Narrative Content */}
+          <div className="lg:col-span-8 space-y-20">
+             <div className="bg-white p-12 md:p-20 rounded-[4rem] shadow-2xl shadow-nature-900/5 border border-gray-50 relative overflow-hidden text-left">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-nature-50 rounded-full blur-[100px] -mr-32 -mt-32"></div>
+                <div className="relative z-10 space-y-12">
+                   <div className="space-y-6">
+                      <h2 className="text-3xl font-black text-gray-900 tracking-tight italic flex items-center gap-4">
+                         <div className="w-10 h-1 rounded-full bg-nature-600"></div> Narrative Intelligence
+                      </h2>
+                      <p className="text-gray-500 font-medium text-xl leading-[1.8] whitespace-pre-line first-letter:text-7xl first-letter:font-black first-letter:text-nature-600 first-letter:mr-3 first-letter:float-left first-letter:leading-[0.8] first-letter:mt-2">
+                        {spot.description}
+                      </p>
+                   </div>
+
+                   {spot.directions && (
+                      <div className="pt-12 border-t border-gray-100 space-y-6">
+                         <h3 className="text-2xl font-black text-gray-900 tracking-tight italic flex items-center gap-4">
+                            <Navigation size={24} className="text-nature-600" /> Geographical Access
+                         </h3>
+                         <div className="bg-nature-50/50 p-10 rounded-[3rem] border border-nature-100/50">
+                            <p className="text-nature-900 font-medium italic text-lg leading-relaxed">{spot.directions}</p>
+                         </div>
+                      </div>
+                   )}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-orange-50 border border-orange-100 rounded-2xl p-8 text-center">
-              <p className="text-orange-700 font-medium italic">No homestays currently registered in {spot.location}.</p>
-              <p className="text-orange-600 text-sm mt-1">Please check other municipalities for accommodation options.</p>
-            </div>
-          )}
+             </div>
+
+             {/* Local Resource Modules */}
+             <div className="space-y-20">
+                {/* Homestays Section */}
+                <div className="space-y-12">
+                   <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-10">
+                      <div className="text-left">
+                         <span className="text-nature-600 font-black uppercase text-[10px] tracking-widest block mb-1">Accommodation Network</span>
+                         <h3 className="text-4xl font-black text-gray-900 tracking-tighter leading-none italic">Local <span className="text-nature-600">Sanctuaries</span></h3>
+                      </div>
+                      <button onClick={() => navigate('/homestays')} className="flex items-center gap-2 text-nature-800 font-black text-[10px] uppercase tracking-widest hover:gap-4 transition-all">Expand Discovery <ChevronRight size={16}/></button>
+                   </div>
+                   
+                   {homestays.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        {homestays.map((homestay) => (
+                           <div key={homestay.id} className="bg-gray-50 p-6 rounded-[3rem] border border-gray-100 hover:shadow-2xl transition-all duration-500 group">
+                              <div className="relative h-64 w-full rounded-[2.5rem] overflow-hidden mb-8">
+                                 <img src={homestay.image_url || 'https://images.unsplash.com/photo-1542224566-6e85f2e10ce3'} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={homestay.name} />
+                                 <div className="absolute top-6 right-6 bg-white/90 backdrop-blur-md px-5 py-2 rounded-2xl text-nature-900 font-black text-sm tracking-tighter shadow-xl">
+                                    ₱{homestay.price_per_night} / Node
+                                 </div>
+                              </div>
+                              <div className="px-4 pb-4 text-left">
+                                 <h4 className="text-2xl font-black text-gray-900 mb-2 truncate">{homestay.name}</h4>
+                                 <p className="text-gray-400 text-sm font-medium line-clamp-2 mb-8 leading-relaxed">{homestay.description}</p>
+                                 <button onClick={() => openModal(homestay, 'homestay')} className="w-full bg-white border border-gray-100 hover:bg-nature-900 hover:text-white py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-widest transition-all shadow-sm">Initiate Booking</button>
+                              </div>
+                           </div>
+                        ))}
+                      </div>
+                   ) : (
+                      <div className="mx-10 p-16 bg-nature-50/50 rounded-[4rem] border border-nature-100 border-dashed text-center">
+                         <p className="text-nature-900/40 font-black uppercase tracking-widest text-xs">No local sanctuaries confirmed in this node yet.</p>
+                      </div>
+                   )}
+                </div>
+
+                {/* Guides Section */}
+                <div className="space-y-12">
+                   <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-10">
+                      <div className="text-left">
+                         <span className="text-earth-600 font-black uppercase text-[10px] tracking-widest block mb-1">Expert Network</span>
+                         <h3 className="text-4xl font-black text-gray-900 tracking-tighter leading-none italic">Institutional <span className="text-earth-600">Guides</span></h3>
+                      </div>
+                   </div>
+                   
+                   {guides.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        {guides.map((guide) => (
+                           <div key={guide.id} className="bg-earth-50/50 p-8 rounded-[3.5rem] border border-earth-100 flex items-center gap-8 group hover:bg-earth-100/50 transition-all">
+                              <div className="w-24 h-24 rounded-[2rem] overflow-hidden shrink-0 border-4 border-white shadow-xl">
+                                 <img src={guide.image_url || 'https://i.pravatar.cc/300'} className="w-full h-full object-cover" alt={guide.name} />
+                              </div>
+                              <div className="flex-1 text-left">
+                                 <span className="text-earth-600 font-black uppercase text-[10px] tracking-widest leading-none mb-2 block">{guide.accreditation_level}</span>
+                                 <h4 className="text-2xl font-black text-gray-900 mb-6 truncate leading-none">{guide.name}</h4>
+                                 <button onClick={() => openModal(guide, 'guide')} className="bg-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest text-earth-800 shadow-sm hover:bg-earth-900 hover:text-white transition-all">Consult Expert</button>
+                              </div>
+                           </div>
+                        ))}
+                      </div>
+                   ) : (
+                      <div className="mx-10 p-16 bg-earth-50/30 rounded-[4rem] border border-earth-100 border-dashed text-center">
+                         <p className="text-earth-900/40 font-black uppercase tracking-widest text-xs">Awaiting local expert certification for this municipality.</p>
+                      </div>
+                   )}
+                </div>
+             </div>
+          </div>
+
+          {/* Institutional Sidebar Detail */}
+          <div className="lg:col-span-4 space-y-12">
+             <div className="bg-nature-950 p-10 py-12 rounded-[4rem] shadow-2xl shadow-nature-900/20 text-left sticky top-32">
+                <div className="space-y-10">
+                   <div className="space-y-4">
+                      <span className="text-nature-400 font-black uppercase tracking-[0.3em] text-[10px] block leading-none">Security Node</span>
+                      <h4 className="text-3xl font-black text-white italic tracking-tighter leading-none">Sanctuary <span className="text-nature-400">Protocols</span></h4>
+                      <p className="text-nature-100/40 text-sm font-medium leading-relaxed">This destination is governed by municipal ecological codes. Adherence to these standards is mandatory for all institutional visitors.</p>
+                   </div>
+                   
+                   <div className="space-y-6">
+                      {[
+                        { label: 'Accredited Hub', icon: <ShieldCheck size={18}/> },
+                        { label: 'Ecological Heritage', icon: <Compass size={18}/> },
+                        { label: 'Community Governed', icon: <Users size={18}/> }
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-6 p-6 rounded-[2rem] bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
+                           <div className="text-nature-400 group-hover:scale-110 transition-transform">{item.icon}</div>
+                           <span className="text-white font-black uppercase text-[10px] tracking-widest">{item.label}</span>
+                        </div>
+                      ))}
+                   </div>
+
+                   <button onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })} className="w-full bg-nature-600 text-white font-black py-6 rounded-[2rem] text-xs uppercase tracking-widest shadow-2xl shadow-nature-600/40 hover:bg-nature-500 transition-all flex items-center justify-center gap-3">
+                      View Visual Intelligence <ArrowRight size={18}/>
+                   </button>
+                </div>
+             </div>
+          </div>
         </div>
 
-        {/* Available Guides Section */}
-        <div className="mb-20">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-earth-100 rounded-xl flex items-center justify-center text-earth-600">
-              <Users className="w-6 h-6" />
+        {/* Full Perspective Map */}
+        <div className="mt-40 space-y-12">
+            <div className="text-center">
+               <span className="text-nature-600 font-black uppercase tracking-widest text-[10px] block mb-2">Geospatial Awareness</span>
+               <h3 className="text-5xl font-black text-gray-900 tracking-tighter italic leading-none">Institutional <span className="text-nature-600">Mapping</span></h3>
             </div>
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900">Local Experts</h3>
-              <p className="text-gray-500">Certified guides serving the <span className="text-earth-600 font-bold">{spot.location}</span> area.</p>
-            </div>
-          </div>
-          
-          {guides.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {guides.map((guide) => (
-                <div key={guide.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all flex flex-col md:flex-row items-center p-6 gap-6">
-                  <img 
-                    src={guide.image_url || 'https://images.unsplash.com/photo-1544168190-79c15427015f'} 
-                    alt={guide.name}
-                    className="w-24 h-24 rounded-full object-cover border-4 border-earth-100"
-                  />
-                  <div className="flex-1 text-center md:text-left">
-                    <h3 className="text-lg font-bold text-gray-900">{guide.name}</h3>
-                    <span className="inline-block px-3 py-1 bg-earth-50 text-earth-700 text-xs font-semibold rounded-full mt-1 mb-3">
-                      {guide.accreditation_level}
-                    </span>
-                    <button 
-                      onClick={() => openModal(guide, 'guide')}
-                      className="block w-full text-center py-2 bg-earth-600 hover:bg-earth-700 text-white rounded-lg text-sm font-medium transition-colors"
-                    >
-                      Hire Guide
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-earth-50 border border-earth-100 rounded-2xl p-8 text-center">
-              <p className="text-earth-700 font-medium italic">No local guides specifically registered for {spot.location} yet.</p>
-              <p className="text-earth-600 text-sm mt-1">Visit the "Tour Guides" page to see our full list of Abra-wide experts.</p>
-            </div>
-          )}
+            {spot.latitude && spot.longitude && (
+              <div className="bg-nature-50 rounded-[5rem] shadow-2xl p-4 border border-white overflow-hidden h-[600px] relative">
+                <MapContainer 
+                  markers={[spot]} 
+                  center={{ lat: parseFloat(spot.latitude), lng: parseFloat(spot.longitude) }} 
+                  zoom={14} 
+                  height="100%" 
+                  interactive={true} 
+                />
+              </div>
+            )}
         </div>
-
-      </div>
+      </section>
 
       {/* Booking Form Modal */}
       <InquiryModal 
